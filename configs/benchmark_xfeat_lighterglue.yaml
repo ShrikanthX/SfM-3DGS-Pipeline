@@ -1,0 +1,90 @@
+name: benchmark_xfeat_lighterglue
+description: Benchmark – xfeat + lighterglue under fixed GSplat recipe
+expected_time: 20–35 minutes
+
+sfm:
+  matching_method: retrieval
+  seq_overlap: 10
+  seq_quadratic_overlap: false
+  seq_loop_closure: true
+  num_matched: 20
+
+  global_extractor: netvlad
+  extractor: xfeat                      # Local feature
+  matcher: xfeat+lighterglue            # Matcher under test
+
+  superglue_weights: outdoor
+  sinkhorn_iterations: 50
+
+  camera_model: PINHOLE
+  sfm_backend: glomap
+  glomap_bin: glomap
+
+  vis: false
+  keep_intermediates: false
+
+  data_factor: 8
+
+gsplat:
+  subcommand: mcmc
+  data_factor: 8
+  max_steps: 30000
+  eval_steps: [7000, 15000, 30000]
+  save_ply: true
+  save_steps: [30000]
+  ply_steps: [30000]
+
+  disable_viewer: true
+  disable_video: true
+  port: 8080
+
+  camera_model: pinhole
+  global_scale: 1.0
+  normalize_world_space: true
+
+  batch_size: 1
+  steps_scaler: 1.0
+  ssim_lambda: 0.2
+  antialiased: true
+  random_bkgd: true
+
+  sh_degree: 3
+  sh_degree_interval: 1000
+  init_type: sfm
+  init_opa: 0.5
+  init_scale: 0.1
+
+  means_lr: 0.00016
+  scales_lr: 0.005
+  opacities_lr: 0.05
+  quats_lr: 0.001
+  sh0_lr: 0.0025
+  shN_lr: 0.000125
+
+  opacity_reg: 0.01
+  scale_reg: 0.01
+
+  pose_opt: false
+  pose_opt_lr: 1.0e-5
+  pose_opt_reg: 1.0e-6
+  pose_noise: 0.0
+
+  depth_loss: false
+  depth_lambda: 0.01
+
+  tb_every: 500
+  tb_save_image: false
+  lpips_net: alex
+
+  packed: true
+  sparse_grad: false
+  visible_adam: false
+
+  strategy:
+    cap_max: 1000000
+    noise_lr: 500000.0
+    min_opacity: 0.005
+    refine_start_iter: 500
+    refine_stop_iter: 25000
+    refine_every: 100
+    verbose: true

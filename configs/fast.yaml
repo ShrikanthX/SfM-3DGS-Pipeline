@@ -1,0 +1,31 @@
+name: fast
+description: Fast preview (5-10 min total)
+expected_time: 5-10 minutes
+
+sfm:
+  matching_method: retrieval            # --matching-method
+  global_extractor: netvlad             # --global_extractor
+  extractor: disk                       # --extractor
+  matcher: disk-lightglue               # --matcher
+  num_matched: 15                       # --num_matched
+  camera_model: PINHOLE                 # --camera_model
+  sfm_backend: glomap                   # --sfm-backend
+  data_factor: 4                        # used by GSplat as --data-factor
+
+gsplat:
+  subcommand: mcmc                      # "mcmc" or "default"
+  data_factor: 4                        # --data-factor
+  max_steps: 10000                      # --max-steps
+  eval_steps: [5000, 10000]             # repeated --eval-steps
+  save_ply: true                        # --save-ply
+  batch_size: 1                         # --batch-size
+  camera_model: pinhole                 # --camera-model
+  antialiased: true                     # --antialiased
+
+  strategy:                             # → --strategy.*
+    cap_max: 1000000                    # --strategy.cap-max
+    min_opacity: 0.005                  # --strategy.min-opacity
+    refine_start_iter: 500              # --strategy.refine-start-iter
+    refine_stop_iter: 25000             # --strategy.refine-stop-iter
+    refine_every: 100                   # --strategy.refine-every
+    verbose: true                       # --strategy.verbose

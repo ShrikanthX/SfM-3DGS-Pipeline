@@ -1,0 +1,31 @@
+name: quality
+description: High quality (40-60 min total)
+expected_time: 40-60 minutes
+
+sfm:
+  matching_method: retrieval
+  global_extractor: netvlad
+  extractor: disk
+  matcher: disk-lightglue
+  num_matched: 30
+  camera_model: PINHOLE
+  sfm_backend: glomap
+  data_factor: 1
+
+gsplat:
+  subcommand: mcmc
+  data_factor: 1
+  max_steps: 50000
+  eval_steps: [10000, 25000, 50000]
+  save_ply: true
+  batch_size: 1
+  camera_model: pinhole
+  antialiased: true
+
+  strategy:
+    cap_max: 1500000
+    min_opacity: 0.005
+    refine_start_iter: 500
+    refine_stop_iter: 30000
+    refine_every: 100
+    verbose: true

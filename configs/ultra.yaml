@@ -1,0 +1,30 @@
+name: ultra
+description: Maximum quality (1-2 hours total)
+expected_time: 1-2 hours
+
+sfm:
+  matching_method: exhaustive
+  global_extractor: netvlad
+  extractor: superpoint_aachen
+  matcher: superpoint-lightglue
+  camera_model: PINHOLE
+  sfm_backend: glomap
+  data_factor: 1
+
+gsplat:
+  subcommand: mcmc
+  data_factor: 1
+  max_steps: 100000
+  eval_steps: [15000, 30000, 60000, 100000]
+  save_ply: true
+  batch_size: 1
+  camera_model: pinhole
+  antialiased: true
+
+  strategy:
+    cap_max: 2000000
+    min_opacity: 0.005
+    refine_start_iter: 500
+    refine_stop_iter: 50000
+    refine_every: 100
+    verbose: true

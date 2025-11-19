@@ -1,0 +1,116 @@
+name: custom_expert
+description: High-quality expert preset with pose optimisation and depth loss
+expected_time: 45–90 minutes (depends heavily on GPU & scene size)
+
+# ─────────────────────────────────────────────────────────────
+# HLOC / SfM configuration (maps directly to run_hloc.py flags)
+# ─────────────────────────────────────────────────────────────
+sfm:
+  # Pair generation & retrieval
+  matching_method: retrieval            # --matching-method {retrieval,sequential,exhaustive}
+  seq_overlap: 10                       # --seq-overlap (only used if matching_method=sequential)
+  seq_quadratic_overlap: false          # --seq-quadratic-overlap
+  seq_loop_closure: true                # --seq-loop-closure (retrieval-based loops)
+  num_matched: 30                       # --num_matched
+
+  # Global / local features
+  global_extractor: netvlad             # --global_extractor {cosplace,dir,eigenplaces,netvlad,openibl}
+  extractor: superpoint_aachen          # --extractor ...
+  matcher: superpoint-lightglue         # --matcher ...
+
+  # SuperGlue options (in case you switch matcher to superglue)
+  superglue_weights: outdoor            # --superglue_weights
+  sinkhorn_iterations: 50               # --sinkhorn_iterations
+
+  # Camera & backend
+  camera_model: PINHOLE                 # --camera_model {OPENCV,...,PINHOLE,SIMPLE_PINHOLE}
+  sfm_backend: glomap                   # --sfm-backend {colmap,fastmap,glomap}
+  glomap_bin: glomap                    # --glomap-bin
+
+  # Misc HLOC options
+  vis: false                            # --vis
+  keep_intermediates: true              # --keep_intermediates
+
+  # Downsample factor for images used by GSplat
+  data_factor: 4                        # consumed by pipeline as --data-factor for GSplat
+
+# ─────────────────────────────────────────────────────────────
+# GSplat configuration (maps to simple_trainer.py mcmc flags)
+# ─────────────────────────────────────────────────────────────
+gsplat:
+  # which subcommand of simple_trainer.py to use
+  subcommand: mcmc                      # "mcmc" or "default"
+
+  # core training / IO
+  data_factor: 4                        # --data-factor (should match sfm.data_factor usually)
+  max_steps: 60000                      # --max-steps
+  eval_steps: [10000, 30000, 60000]     # repeated --eval-steps
+  save_ply: true                        # --save-ply
+  save_steps: [30000, 60000]            # --save-steps
+  ply_steps: [60000]                    # --ply-steps
+
+  # rendering / viewer behaviour
+  disable_viewer: true                  # --disable-viewer
+  disable_video: true                   # --disable-video
+  port: 8080                            # --port
+
+  # camera & scene scale
+  camera_model: pinhole                 # --camera-model {pinhole,ortho,fisheye}
+  global_scale: 1.0                     # --global-scale
+  normalize_world_space: true           # --normalize-world-space
+
+  # optimisation / quality
+  batch_size: 2                         # --batch-size (2 is heavier but better than 1)
+  steps_scaler: 1.0                     # --steps-scaler
+  ssim_lambda: 0.2                      # --ssim-lambda
+  antialiased: true                     # --antialiased
+  random_bkgd: true                     # --random-bkgd
+
+  # SH / appearance
+  sh_degree: 3                          # --sh-degree
+  sh_degree_interval: 1000              # --sh-degree-interval
+  init_type: sfm                        # --init-type (keep 'sfm' to use COLMAP/HLOC points)
+  init_opa: 0.5                         # --init-opa
+  init_scale: 0.1                       # --init-scale
+
+  # learning rates
+  means_lr: 0.00016                     # --means-lr
+  scales_lr: 0.005                      # --scales-lr
+  opacities_lr: 0.05                    # --opacities-lr
+  quats_lr: 0.001                       # --quats-lr
+  sh0_lr: 0.0025                        # --sh0-lr
+  shN_lr: 0.000125                      # --shN-lr
+
+  # regularisation
+  opacity_reg: 0.01                     # --opacity-reg
+  scale_reg: 0.01                       # --scale-reg
+
+  # pose optimisation
+  pose_opt: true                        # --pose-opt
+  pose_opt_lr: 1.0e-5                   # --pose-opt-lr
+  pose_opt_reg: 1.0e-6                  # --pose-opt-reg
+  pose_noise: 0.0                       # --pose-noise
+
+  # depth supervision (if you ever provide depth)
+  depth_loss: true                      # --depth-loss
+  depth_lambda: 0.01                    # --depth-lambda
+
+  # logging
+  tb_every: 200                         # --tb-every
+  tb_save_image: false                  # --tb-save-image
+  lpips_net: vgg                        # --lpips-net {vgg,alex}
+
+  # memory / performance tweaks
+  packed: true                          # --packed
+  sparse_grad: false                    # --sparse-grad
+  visible_adam: false                   # --visible-adam
+
+  # MCMC densification strategy (strategy.* → --strategy.xxx)
+  strategy:
+    cap_max: 1500000                    # --strategy.cap-max
+    noise_lr: 500000.0                  # --strategy.noise-lr
+    min_opacity: 0.005                  # --strategy.min-opacity
+    refine_start_iter: 1000             # --strategy.refine-start-iter
+    refine_stop_iter: 50000             # --strategy.refine-stop-iter
+    refine_every: 100                   # --strategy.refine-every
+    verbose: true                       # --strategy.verbose
